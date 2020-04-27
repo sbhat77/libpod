@@ -1487,14 +1487,10 @@ func (i *Image) Save(ctx context.Context, source, format, output string, moreTag
 		}
 		manifestType = manifest.DockerV2Schema2MediaType
 	case "docker-archive", "":
-		dst := output
 		destImageName := imageNameForSaveDestination(i, source)
-		if destImageName != "" {
-			dst = fmt.Sprintf("%s:%s", dst, destImageName)
-		}
-		destRef, err = dockerarchive.ParseReference(dst) // FIXME? Add dockerarchive.NewReference
+		destRef, err = dockerarchive.NewReference(output, destImageName) 
 		if err != nil {
-			return errors.Wrapf(err, "error getting Docker archive ImageReference for %q", dst)
+			return errors.Wrapf(err, "error getting Docker archive ImageReference for %q", output)
 		}
 	default:
 		return errors.Errorf("unknown format option %q", format)

@@ -159,18 +159,29 @@ func imageNameForSaveDestination(img *Image, imgUserInput string) string {
 	}
 
 	prepend := ""
-	localRegistryPrefix := fmt.Sprintf("%s/", DefaultLocalRegistry)
-	if !strings.HasPrefix(imgUserInput, localRegistryPrefix) {
-		// we need to check if localhost was added to the image name in NewFromLocal
-		for _, name := range img.Names() {
-			// If the user is saving an image in the localhost registry,  getLocalImage need
-			// a name that matches the format localhost/<tag1>:<tag2> or localhost/<tag>:latest to correctly
-			// set up the manifest and save.
-			if strings.HasPrefix(name, localRegistryPrefix) && (strings.HasSuffix(name, imgUserInput) || strings.HasSuffix(name, fmt.Sprintf("%s:latest", imgUserInput))) {
-				prepend = localRegistryPrefix
-				break
-			}
-		}
-	}
-	return fmt.Sprintf("%s%s", prepend, imgUserInput)
+        localRegistryPrefix := fmt.Sprintf("%s/", DefaultLocalRegistry)
+        if !strings.HasPrefix(imgUserInput, localRegistryPrefix) {
+                // we need to check if localhost was added to the image name in NewFromLocal
+                for _, name := range img.Names() {
+                     for _, int_digest := range img.Digest() {
+                        // If the user is saving an image in the localhost registry,  getLocalImage need
+                        // a name that matches the format localhost/<tag1>:<tag2> or localhost/<tag>:latest to correctly
+                        // set up the manifest and save.
+                        if strings.HasPrefix(name, localRegistryPrefix) && (strings.HasSuffix(name, imgUserInput) || strings.HasSuffix(name, fmt.Sprintf("%s:latest", imgUserInput))) {
+                                prepend = localRegistryPrefix
+                        }
+
+                        if strings.Contains(imgUserInput, "@") {
+                                sub_image = strings.Split(imgUserInput, "@")
+                        }
+
+                        if strings.HasSuffix(name, sub_image[0])) && strings.HasSuffix(int_digest, sub_image[1]) {
+                               prepend = localRegistryPrefix
+                                break
+                        }
+
+                     }
+                 }
+        }
+    return fmt.Sprintf("%s%s", prepend, imgUserInput)
 }
